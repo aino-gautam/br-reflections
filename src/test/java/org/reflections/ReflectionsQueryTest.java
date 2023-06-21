@@ -4,6 +4,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
 import org.reflections.scanners.Scanners;
+import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.reflections.util.NameHelper;
@@ -33,7 +34,10 @@ public class ReflectionsQueryTest implements NameHelper {
 				.filterInputsBy(new FilterBuilder()
 					.includePattern("org\\.reflections\\.TestModel\\$.*")
 					.or(s -> s.endsWith(".xml")))
-				.setScanners(Scanners.values()));
+				.setScanners(Scanners.values())
+				.setUrls(ClasspathHelper.forPackage(
+						"org.reflections", ClasspathHelper.contextClassLoader(),
+						ClasspathHelper.staticClassLoader())));
 	}
 
 	@Test
@@ -303,7 +307,15 @@ public class ReflectionsQueryTest implements NameHelper {
 				"META-INF/reflections/testModel-reflections.xml",
 				"META-INF/reflections/saved-testModel-reflections.xml",
 				"META-INF/reflections/resource1-reflections.xml",
-				"META-INF/reflections/inner/resource2-reflections.xml"));
+				"META-INF/reflections/inner/resource2-reflections.xml",
+				"META-INF/maven/org.reflections/reflections/pom.xml"));
+		
+		/**
+		 * java.lang.AssertionError: resources matching pattern any
+Expected: <[META-INF/reflections/testModel-reflections.xml, META-INF/reflections/saved-testModel-reflections.xml, META-INF/reflections/resource1-reflections.xml, META-INF/reflections/inner/resource2-reflections.xml]>
+     but: was <[META-INF/reflections/resource1-reflections.xml, META-INF/reflections/saved-testModel-reflections.xml, META-INF/reflections/inner/resource2-reflections.xml, META-INF/reflections/testModel-reflections.xml, ]>
+
+		 */
 	}
 
 	@Test

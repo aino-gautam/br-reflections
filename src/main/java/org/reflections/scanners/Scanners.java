@@ -45,10 +45,11 @@ public enum Scanners implements Scanner, QueryBuilder, NameHelper {
      * <i>Note that {@code Object} class is excluded by default, in order to reduce store size.
      * <br>Use {@link #filterResultsBy(Predicate)} to change, for example {@code SubTypes.filterResultsBy(c -> true)}</i>
      * */
+	
     SubTypes {
         /* Object class is excluded by default from subtypes indexing */
-        { filterResultsBy(new FilterBuilder().excludePattern("java\\.lang\\.Object")); }
-
+    	{ filterResultsBy(new FilterBuilder().excludePattern("java\\.lang\\.Object")); }
+    	
         @Override
         public void scan(ClassFile classFile, List<Map.Entry<String, String>> entries) {
             entries.add(entry(classFile.getSuperclass(), classFile.getName()));
