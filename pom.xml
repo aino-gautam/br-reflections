@@ -4,7 +4,7 @@
 
     <groupId>org.reflections</groupId>
     <artifactId>reflections</artifactId>
-    <version>0.12.1-SNAPSHOT</version> <!-- forward version specific to aino -->
+    <version>java-17-deba-1.0-RC-3</version> <!-- forward version specific to aino -->
     <packaging>jar</packaging>
 
     <name>Reflections</name>
