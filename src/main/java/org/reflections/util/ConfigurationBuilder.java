@@ -1,10 +1,5 @@
 package org.reflections.util;
 
-import org.reflections.Configuration;
-import org.reflections.ReflectionsException;
-import org.reflections.scanners.Scanner;
-import org.reflections.scanners.Scanners;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import org.reflections.Configuration;
+import org.reflections.ReflectionsException;
+import org.reflections.scanners.Scanner;
+import org.reflections.scanners.Scanners;
 
 /**
  * {@link Configuration} builder for instantiating Reflections

@@ -1,6 +1,51 @@
 package org.reflections;
 
-import javassist.bytecode.ClassFile;
+import static java.lang.String.format;
+import static org.reflections.scanners.Scanners.ConstructorsAnnotated;
+import static org.reflections.scanners.Scanners.ConstructorsParameter;
+import static org.reflections.scanners.Scanners.ConstructorsSignature;
+import static org.reflections.scanners.Scanners.FieldsAnnotated;
+import static org.reflections.scanners.Scanners.MethodsAnnotated;
+import static org.reflections.scanners.Scanners.MethodsParameter;
+import static org.reflections.scanners.Scanners.MethodsReturn;
+import static org.reflections.scanners.Scanners.MethodsSignature;
+import static org.reflections.scanners.Scanners.Resources;
+import static org.reflections.scanners.Scanners.SubTypes;
+import static org.reflections.scanners.Scanners.TypesAnnotated;
+import static org.reflections.util.ReflectionUtilsPredicates.withAnnotation;
+import static org.reflections.util.ReflectionUtilsPredicates.withAnyParameterAnnotation;
+
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Inherited;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javax.annotation.Nullable;
+
 import org.reflections.scanners.MemberUsageScanner;
 import org.reflections.scanners.MethodParameterNamesScanner;
 import org.reflections.scanners.Scanner;
@@ -16,39 +61,7 @@ import org.reflections.vfs.Vfs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Inherited;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import static java.lang.String.format;
-import static org.reflections.ReflectionUtils.withAnnotation;
-import static org.reflections.ReflectionUtils.withAnyParameterAnnotation;
-import static org.reflections.scanners.Scanners.*;
+import javassist.bytecode.ClassFile;
 
 /**
  * Reflections one-stop-shop object
@@ -169,6 +182,27 @@ public class Reflections implements NameHelper {
         Map<String, Set<Map.Entry<String, String>>> collect = configuration.getScanners().stream().map(Scanner::index).distinct()
             .collect(Collectors.toMap(s -> s, s -> Collections.synchronizedSet(new HashSet<>())));
         Set<URL> urls = configuration.getUrls();
+        
+		for (URL url: urls) {
+			String cleanUrl = ClasspathHelper.cleanPath(url);
+			File f = new File(cleanUrl);
+		  URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+		  Class urlClass = URLClassLoader.class;
+		  Method method;
+			try {
+				method = urlClass.getDeclaredMethod("addURL", new Class[]{URL.class});
+				method.setAccessible(true);
+				method.invoke(urlClassLoader, new Object[]{f.toURI().toURL()});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+        
+        String classpath = System.getProperty("java.class.path");
+        String[] classpathEntries = classpath.split(File.pathSeparator);
+        for (String entry: classpathEntries) {
+        	System.out.println("Class path entry: " + entry);
+        }
 
         (configuration.isParallel() ? urls.stream().parallel() : urls.stream()).forEach(url -> {
             Vfs.Dir dir = null;
