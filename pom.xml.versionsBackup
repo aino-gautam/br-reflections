@@ -9,11 +9,10 @@
     <name>Reflections</name>
     <description>Reflections - Java runtime metadata analysis</description>
     <url>http://github.com/ronmamo/reflections</url>
-
 	<parent>
 		<groupId>org.appops</groupId>
 		<artifactId>appops-br-reactor</artifactId>
-		<version>zc-blogger-1</version>
+		<version>deba-1.0-RC-3</version>
 	</parent>
 
     <licenses>
